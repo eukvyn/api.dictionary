@@ -12,14 +12,29 @@ class WordsImport implements ToCollection, WithChunkReading, WithBatchInserts
 {
     public function collection(Collection $rows)
     {
-        // Formatar os dados para inserção
         $data = [];
+
         foreach ($rows as $row) {
-            $data[] = ['word' => $row[0]];
+            // Obtenha a palavra
+            $word = trim($row[0]);
+
+            // Verifique se é uma palavra válida: sem espaços, apenas letras (evitar frases)
+            if ($this->isValidWord($word)) {
+                $data[] = ['word' => $word];
+            }
         }
 
         // Inserir ignorando duplicatas
         Word::insertOrIgnore($data);
+    }
+
+    /**
+     * Valida se o termo é uma palavra válida.
+     */
+    private function isValidWord($word)
+    {
+        // Verifica se a palavra contém apenas letras e não contém espaços
+        return preg_match('/^[a-zA-Z\-]+$/', $word);
     }
 
     public function batchSize(): int
@@ -32,4 +47,3 @@ class WordsImport implements ToCollection, WithChunkReading, WithBatchInserts
         return 1000; // Ajustar o tamanho do chunk
     }
 }
-
