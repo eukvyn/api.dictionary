@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WordController;
+use App\Http\Controllers\WordDetailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +38,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('entries')->group(function () {
         Route::get('/en', [WordController::class, 'index'])
             ->name('index');
+        Route::get('/en/{word}', [WordDetailController::class, 'show']);
     });
 });
 
