@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Word;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * @OA\Info(
@@ -42,7 +43,14 @@ class WordController extends Controller
      *         in="query",
      *         description="Limit the number of results",
      *         required=false,
-     *         @OA\Schema(type="integer", default=100)
+     *         @OA\Schema(type="integer", default=10)
+     *     ),
+     *     @OA\Parameter(
+     *         name="cursor",
+     *         in="query",
+     *         description="Cursor for pagination",
+     *         required=false,
+     *         @OA\Schema(type="string")
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -65,23 +73,50 @@ class WordController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search');
-        $limit = $request->query('limit', 100);
+        $limit = $request->query('limit');
+        $cursor = $request->query('cursor');
 
+        // Generate a unique cache key based on search limit, and cursor
+        $cacheKey = 'words:' . md5("search={$search}&limit={$limit}&cursor={$cursor}");
+
+        // Start timer
+        $startTime = microtime(true);
+
+        // Attempt to retrieve from cache
+        if (Cache::has($cacheKey)) {
+            $cachedData = Cache::get($cacheKey);
+            $responseTime = round((microtime(true) - $startTime) * 1000, 2); // in ms
+
+            return response()->json($cachedData)
+                ->header('x-cache', 'HIT')
+                ->header('x-response-time', "{$responseTime}ms");
+        }
+
+        // Perform the query
         $query = Word::query();
 
         if ($search) {
-            $query = Word::where('word', 'LIKE', $search . '%');
+            $query->where('word', 'LIKE', $search . '%');
         }
 
         $words = $query->cursorPaginate($limit);
 
-        return response()->json([
+        $responseData = [
             'results' => $words->items(),
             'totalDocs' => $query->count(),
             'next' => $words->nextPageUrl(),
             'previous' => $words->previousPageUrl(),
             'hasNext' => $words->hasMorePages(),
             'hasPrev' => $words->previousPageUrl() !== null
-        ]);
+        ];
+
+        // Save to cache for 30 minutes
+        Cache::put($cacheKey, $responseData, now()->addMinutes(30));
+
+        $responseTime = round((microtime(true) - $startTime) * 1000, 2); // in ms
+
+        return response()->json($responseData)
+            ->header('x-cache', 'MISS')
+            ->header('x-response-time', "{$responseTime}ms");
     }
 }

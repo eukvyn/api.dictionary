@@ -247,7 +247,16 @@
                         "required": false,
                         "schema": {
                             "type": "integer",
-                            "default": 100
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Cursor for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 ],
