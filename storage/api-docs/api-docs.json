@@ -304,6 +304,79 @@
                     }
                 ]
             }
+        },
+        "/api/entries/en/{word}": {
+            "get": {
+                "tags": [
+                    "Words"
+                ],
+                "summary": "Retrieve word details",
+                "description": "Get detailed information about a specific word by proxying the Free Dictionary API",
+                "operationId": "getWordDetails",
+                "parameters": [
+                    {
+                        "name": "word",
+                        "in": "path",
+                        "description": "The word to retrieve details for",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "word": {
+                                                "type": "string"
+                                            },
+                                            "phonetics": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "meanings": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "license": {
+                                                "type": "object"
+                                            },
+                                            "sourceUrls": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Word not found"
+                    },
+                    "500": {
+                        "description": "Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {

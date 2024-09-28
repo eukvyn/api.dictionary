@@ -7,15 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * @OA\Info(
- *      version="1.0.0",
- *      title="Dictionary API Documentation",
- *      description="API to search words in a dictionary",
- *      @OA\Contact(
- *          email="support@example.com"
- *      )
- * )
- *
  * @OA\Tag(
  *     name="Words",
  *     description="Operations related to word search"
@@ -111,7 +102,7 @@ class WordController extends Controller
         ];
 
         // Save to cache for 30 minutes
-        Cache::put($cacheKey, $responseData, now()->addMinutes(30));
+        Cache::put($cacheKey, $responseData, now()->addMinutes(60));
 
         $responseTime = round((microtime(true) - $startTime) * 1000, 2); // in ms
 
