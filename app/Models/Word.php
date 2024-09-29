@@ -2,12 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Word extends Model
 {
-    use HasFactory;
-
     protected $fillable = ['word'];
+
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
+    }
+
+    public function accessedBy()
+    {
+        return $this->belongsToMany(User::class, 'histories')->withTimestamps();
+    }
 }

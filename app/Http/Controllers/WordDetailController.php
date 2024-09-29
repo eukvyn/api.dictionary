@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\HistoryController;
 
 /**
  * @OA\Tag(
@@ -56,6 +57,11 @@ class WordDetailController extends Controller
      */
     public function show($word, Request $request)
     {
+        $user = $request->user();
+
+        // Chama a função que adiciona ou atualiza o histórico
+        HistoryController::addToHistory($user, $word);
+
         // Gerar uma chave única para o cache baseada na palavra
         $cacheKey = 'word_detail:' . strtolower($word);
 
