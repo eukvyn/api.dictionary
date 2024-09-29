@@ -67,7 +67,7 @@ class WordController extends Controller
         $limit = $request->query('limit');
         $cursor = $request->query('cursor');
 
-        // Generate a unique cache key based on search limit, and cursor
+        // Generate a unique cache key based on search, limit, and cursor
         $cacheKey = 'words:' . md5("search={$search}&limit={$limit}&cursor={$cursor}");
 
         // Start timer
@@ -101,7 +101,7 @@ class WordController extends Controller
             'hasPrev' => $words->previousPageUrl() !== null
         ];
 
-        // Save to cache for 30 minutes
+        // Save to cache for 60 minutes
         Cache::put($cacheKey, $responseData, now()->addMinutes(60));
 
         $responseTime = round((microtime(true) - $startTime) * 1000, 2); // in ms

@@ -59,21 +59,19 @@ class FavoriteController extends Controller
     {
         $user = $request->user();
 
-        // Gerar uma chave única para o cache baseada na palavra
+        // Generate a unique cache key based on word
         $cacheKey = 'word_detail:' . strtolower($word);
 
-        // Verificar se a palavra já está nos favoritos
         if ($user->favorites()->where('word_id', function ($query) use ($word) {
             $query->select('id')->from('words')->where('word', $word)->limit(1);
         })->exists()) {
             return response()->json(['message' => 'Word is already in favorites'], 409);
         }
 
-        // Buscar a palavra na tabela 'words'
         $wordModel = Word::where('word', $word)->first();
 
         if (!$wordModel) {
-            // Se a palavra não existir no banco, buscar na API externa
+            // If the word does not exist in the database, search in the external API
             try {
                 $externalResponse = Http::timeout(5)->get("https://api.dictionaryapi.dev/api/v2/entries/en/{$word}");
 
@@ -84,10 +82,8 @@ class FavoriteController extends Controller
                         return response()->json(['message' => 'Word not found'], 404);
                     }
 
-                    // Salvar a palavra no banco de dados
                     $wordModel = Word::create(['word' => $word]);
 
-                    // Salvar no cache
                     Cache::tags(['words'])->put($cacheKey, $data, now()->addMinutes(60));
                 } else if ($externalResponse->status() == 404) {
                     return response()->json(['message' => 'Word not found'], 404);
@@ -100,10 +96,10 @@ class FavoriteController extends Controller
             }
         }
 
-        // Adicionar a palavra aos favoritos do usuário
+        // Add the word to the user's favorites
         $user->favorites()->attach($wordModel->id);
 
-        // Invalida o cache relacionado às palavras favoritas do usuário
+        // Invalidates the cache related to the user's favorite words
         Cache::tags(['favorites:' . $user->id])->flush();
 
         return response()->json(['message' => 'Word favorited successfully'], 201);
@@ -151,22 +147,20 @@ class FavoriteController extends Controller
     {
         $user = $request->user();
 
-        // Buscar a palavra na tabela 'words'
         $wordModel = Word::where('word', $word)->first();
 
         if (!$wordModel) {
             return response()->json(['message' => 'Word not found'], 404);
         }
 
-        // Verificar se a palavra está nos favoritos do usuário
         if (!$user->favorites()->where('word_id', $wordModel->id)->exists()) {
             return response()->json(['message' => 'Word not found in favorites'], 404);
         }
 
-        // Remover a palavra dos favoritos
+        // Remove word from favorites
         $user->favorites()->detach($wordModel->id);
 
-        // Invalida o cache relacionado às palavras favoritas do usuário
+        // Invalidates the cache related to the user's favorite words
         Cache::tags(['favorites:' . $user->id])->flush();
 
         return response()->json(['message' => 'Word removed from favorites successfully'], 200);
@@ -208,36 +202,35 @@ class FavoriteController extends Controller
     {
         $user = $request->user();
 
-        // Gerar uma chave única para o cache baseada no usuário
+        // Generate a unique cache key based on user
         $cacheKey = 'favorites:' . $user->id;
 
-        // Iniciar o cronômetro para medir o tempo de resposta
+        // Start timer
         $startTime = microtime(true);
 
-        // Verificar se os dados já estão no cache Redis
+        // Attempt to retrieve from cache
         if (Cache::tags(['favorites:' . $user->id])->has($cacheKey)) {
             $cachedData = Cache::tags(['favorites:' . $user->id])->get($cacheKey);
-            $responseTime = round((microtime(true) - $startTime) * 1000, 2); // em ms
+            $responseTime = round((microtime(true) - $startTime) * 1000, 2); // in ms
 
             return response()->json($cachedData)
                 ->header('x-cache', 'HIT')
                 ->header('x-response-time', "{$responseTime}ms");
         }
 
-        // Buscar as palavras favoritas do usuário
+        // Search for user's favorite words
         $favorites = $user->favorites()->pluck('word');
 
         if ($favorites->isEmpty()) {
             return response()->json(['message' => 'No favorites found'], 404);
         }
 
-        // Preparar os dados da resposta
         $responseData = $favorites->toArray();
 
-        // Salvar no cache por 5 minutos
-        Cache::tags(['favorites:' . $user->id])->put($cacheKey, $responseData, now()->addMinutes(5));
+        // Save to cache for 60 minutes
+        Cache::tags(['favorites:' . $user->id])->put($cacheKey, $responseData, now()->addMinutes(60));
 
-        $responseTime = round((microtime(true) - $startTime) * 1000, 2); // em ms
+        $responseTime = round((microtime(true) - $startTime) * 1000, 2); // in ms
 
         return response()->json($responseData)
             ->header('x-cache', 'MISS')

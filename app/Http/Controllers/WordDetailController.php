@@ -62,38 +62,37 @@ class WordDetailController extends Controller
         // Chama a função que adiciona ou atualiza o histórico
         HistoryController::addToHistory($user, $word);
 
-        // Gerar uma chave única para o cache baseada na palavra
+        // Generate a unique cache key based on word
         $cacheKey = 'word_detail:' . strtolower($word);
 
-        // Iniciar o cronômetro para medir o tempo de resposta
+        // Start timer
         $startTime = microtime(true);
 
-        // Verificar se os dados já estão no cache Redis
+        // Attempt to retrieve from cache
         if (Cache::has($cacheKey)) {
             $cachedData = Cache::get($cacheKey);
-            $responseTime = round((microtime(true) - $startTime) * 1000, 2); // em ms
+            $responseTime = round((microtime(true) - $startTime) * 1000, 2); // in ms
 
             return response()->json($cachedData)
                 ->header('x-cache', 'HIT')
                 ->header('x-response-time', "{$responseTime}ms");
         }
 
-        // Fazer a requisição à API externa
+        // Make the request to the external API
         try {
             $externalResponse = Http::timeout(5)->get("https://api.dictionaryapi.dev/api/v2/entries/en/{$word}");
 
             if ($externalResponse->successful()) {
                 $data = $externalResponse->json();
 
-                // Verificar se a palavra foi encontrada
                 if (empty($data)) {
                     return response()->json(['message' => 'Word not found'], 404);
                 }
 
-                // Salvar no cache por 60 minutos
+                // Save to cache for 60 minutes
                 Cache::put($cacheKey, $data, now()->addMinutes(60));
 
-                $responseTime = round((microtime(true) - $startTime) * 1000, 2); // em ms
+                $responseTime = round((microtime(true) - $startTime) * 1000, 2); // in ms
 
                 return response()->json($data)
                     ->header('x-cache', 'MISS')
@@ -104,7 +103,6 @@ class WordDetailController extends Controller
                 return response()->json(['message' => 'Error fetching word details'], $externalResponse->status());
             }
         } catch (\Exception $e) {
-            // Log de erro para diagnóstico
             Log::error("Error fetching word details: " . $e->getMessage());
 
             return response()->json(['message' => 'Server Error'], 500);

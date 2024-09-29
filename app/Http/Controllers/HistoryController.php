@@ -12,21 +12,20 @@ class HistoryController extends Controller
 {
     public static function addToHistory($user, $word)
     {
-        // Buscar a palavra no banco de dados
         $wordModel = Word::where('word', $word)->first();
 
         if (!$wordModel) {
             return response()->json(['message' => 'Word not found'], 404);
         }
 
-        // Verificar se a palavra já está no histórico do usuário
+        // Check if the word is already in the user's history
         $existingHistory = $user->histories()->where('word_id', $wordModel->id)->first();
 
         if ($existingHistory) {
-            // Se a palavra já está no histórico, apenas atualiza o timestamp
-            $existingHistory->pivot->touch();  // Atualiza a coluna 'updated_at'
+            // If the word is already in the history, just update the timestamp
+            $existingHistory->pivot->touch();  // Updates the 'updated_at' column
         } else {
-            // Caso contrário, adiciona a palavra ao histórico
+            // Otherwise, add the word to the history.
             $user->histories()->attach($wordModel->id);
         }
 
@@ -37,26 +36,26 @@ class HistoryController extends Controller
     /**
      * @OA\Get(
      *     path="/api/user/me/history",
-     *     summary="Retorna a lista de palavras visitadas pelo usuário com paginação por cursores",
+     *     summary="Returns the list of words visited by the user with cursor pagination",
      *     tags={"History"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="limit",
      *         in="query",
-     *         description="Número de palavras a retornar por página",
+     *         description="Number of words to return per page",
      *         required=false,
      *         @OA\Schema(type="integer", default=10)
      *     ),
      *     @OA\Parameter(
      *         name="cursor",
      *         in="query",
-     *         description="Cursor para a páginação",
+     *         description="Cursor for paging",
      *         required=false,
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Lista de palavras com informações de acesso",
+     *         description="List of words with access information",
      *         @OA\JsonContent(
      *             @OA\Property(property="results", type="array",
      *                 @OA\Items(
@@ -73,7 +72,7 @@ class HistoryController extends Controller
      *     ),
      *     @OA\Response(
      *         response=401,
-     *         description="Usuário não autenticado"
+     *         description="Unauthenticated user"
      *     )
      * )
      */
@@ -83,11 +82,13 @@ class HistoryController extends Controller
         $limit = $request->query('limit', 10);
         $cursor = $request->query('cursor');
 
+        // Generate a unique cache key based on user, limit, and cursor
         $cacheKey = "user_history:{$user->id}_{$cursor}_{$limit}";
 
         // Start timer
         $startTime = microtime(true);
 
+        // Attempt to retrieve from cache
         if (Cache::tags(["user_history:{$user->id}"])->has($cacheKey)) {
             $cachedData = Cache::tags(["user_history:{$user->id}"])->get($cacheKey);
             $responseTime = round((microtime(true) - $startTime) * 1000, 2); // in ms
@@ -96,13 +97,11 @@ class HistoryController extends Controller
                 ->header('x-response-time', "{$responseTime}ms");
         }
 
-        // Ordenar o histórico pelo campo 'updated_at' na tabela de pivot
+        // Sort history by 'updated_at' field
         $query = $user->histories()->orderBy('pivot_updated_at', 'desc');
 
-        // Usar paginação com cursor
         $words = $query->cursorPaginate($limit, ['*'], 'cursor', $cursor);
 
-        // Transformar o array em uma coleção antes de aplicar o 'map'
         $responseData = [
             'results' => collect($words->items())->map(function ($word) {
                 return [
