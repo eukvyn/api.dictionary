@@ -1,66 +1,117 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# API Dictionary
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este projeto é uma API que consome e expande os recursos da Free Dictionary API, oferecendo funcionalidades adicionais, como caching e gerenciamento de histórico e favoritos.
 
-## About Laravel
+## Tecnologias
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Laravel ^11.9
+- PHP ^8.2
+- MySQL 8.0
+- Redis
+- Docker
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Escolhas Técnicas e Decisões
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Laravel
+A escolha do Laravel como o framework PHP foi baseada em sua robustez e vasto ecossistema. Laravel oferece uma estrutura bem definida que facilita o desenvolvimento de APIs seguras e escaláveis, além de um excelente suporte para autenticação, middleware e caching. A arquitetura MVC do Laravel ajudou a manter o código organizado e a implementação das camadas de serviço e controle se tornou simples e eficiente.
 
-## Learning Laravel
+Além disso, a facilidade de integração com bibliotecas de terceiros (como a Free Dictionary API) fez do Laravel uma escolha natural, proporcionando uma curva de aprendizado rápida devido à sua documentação clara.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Redis
+Para otimizar o tempo de resposta da API, implementei o Redis para caching de dados. Ao armazenar as respostas da Free Dictionary API em cache, a API pode reduzir significativamente o número de requisições externas e melhorar o desempenho geral, especialmente em consultas repetidas. Redis foi escolhido por ser altamente performático e escalável, sendo uma solução ideal para armazenamento temporário de dados e cache de alto desempenho.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Docker
+O uso do Docker foi essencial para garantir um ambiente de desenvolvimento consistente e facilitar a configuração da infraestrutura. Com Docker, pude isolar todos os serviços necessários (PHP, MySQL, Redis) e garantir que o projeto funcione de maneira idêntica em qualquer máquina, independentemente do sistema operacional ou das configurações de software.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+![docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
-## Laravel Sponsors
+## Pré-requisitos
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Git
+- Docker
+- docker-compose
 
-### Premium Partners
+## Instalação
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Siga os passos abaixo para configurar o projeto em seu ambiente local:
 
-## Contributing
+### 1. Clonar o Repositório
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Clone este repositório para o seu ambiente local usando o seguinte comando:
 
-## Code of Conduct
+```bash
+git clone https://github.com/eukvyn/api.dictionary.git
+cd api.dictionary
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 2. Suba os containers do projeto
 
-## Security Vulnerabilities
+Execute:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+docker-compose up -d
+```
 
-## License
+### 3. Configurar o Ambiente
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Copie o arquivo .env.example para um novo arquivo chamado .env:
+
+```bash
+cp .env.example .env
+```
+
+### 4. Acesse o container app
+
+Execute:
+
+```bash
+docker-compose exec app bash
+```
+
+### 5. Instalar Dependências
+
+Execute o Composer para instalar as dependências do projeto:
+
+```bash
+composer install
+```
+
+Em caso de falha da instalação de alguma lib, continuar a instalação ignorando a lib que falou. Exemplo: 
+
+```bash
+composer install --ignore-platform-req=ext-zip
+```
+
+### 6. Gerar Chave da Aplicação
+
+Gere a chave da aplicação Laravel com o comando:
+
+```bash
+php artisan key:generate
+```
+
+### 7. Preparar o Banco de Dados
+
+Cria o banco de dados que está especificado no arquivo .env e executa as migrations:
+
+```bash
+php artisan migrate
+```
+
+### 8. Executar Seeders
+
+Popule o banco de dados com dados iniciais executando:
+
+```bash
+php artisan db:seed
+```
+
+Essa operação deve levar entre 2 - 4 minutos, pois nesse trecho é feito o download e inserção de cerca de 200 mil registros de palavras no banco de dados.
+
+## Acesse o projeto
+
+Com todas as configurações feitas,
+
+Agora, a API estará rodando em http://localhost:8000.
+
+>  This is a challenge by [Coodesh](https://coodesh.com/)
