@@ -416,13 +416,13 @@
                 "tags": [
                     "History"
                 ],
-                "summary": "Retorna a lista de palavras visitadas pelo usuário com paginação por cursores",
+                "summary": "Returns the list of words visited by the user with cursor pagination",
                 "operationId": "b096949a1b6f565f837e392cd6da0d94",
                 "parameters": [
                     {
                         "name": "limit",
                         "in": "query",
-                        "description": "Número de palavras a retornar por página",
+                        "description": "Number of words to return per page",
                         "required": false,
                         "schema": {
                             "type": "integer",
@@ -432,7 +432,7 @@
                     {
                         "name": "cursor",
                         "in": "query",
-                        "description": "Cursor para a páginação",
+                        "description": "Cursor for paging",
                         "required": false,
                         "schema": {
                             "type": "string"
@@ -441,7 +441,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Lista de palavras com informações de acesso",
+                        "description": "List of words with access information",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -489,7 +489,7 @@
                         }
                     },
                     "401": {
-                        "description": "Usuário não autenticado"
+                        "description": "Unauthenticated user"
                     }
                 },
                 "security": [
