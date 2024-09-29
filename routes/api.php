@@ -9,6 +9,8 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WordController;
 use App\Http\Controllers\WordDetailController;
+use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\HistoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,12 +35,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('user')->group(function () {
         Route::get('/me', [UserController::class, 'me'])
             ->name('profile');
+        Route::get('/me/favorites', [FavoriteController::class, 'index'])
+            ->name('favorites');
+        Route::get('/me/history', [HistoryController::class, 'index'])
+            ->name('history');
     });
 
     Route::prefix('entries')->group(function () {
         Route::get('/en', [WordController::class, 'index'])
             ->name('index');
-        Route::get('/en/{word}', [WordDetailController::class, 'show']);
+        Route::get('/en/{word}', [WordDetailController::class, 'show'])
+            ->name('show');
+        Route::post('/en/{word}/favorite', [FavoriteController::class, 'store'])
+            ->name('favorite');
+        Route::delete('/en/{word}/unfavorite', [FavoriteController::class, 'destroy'])
+            ->name('unfavorite');
     });
 });
 
