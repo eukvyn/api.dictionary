@@ -181,6 +181,324 @@
                 }
             }
         },
+        "/api/entries/en/{word}/favorite": {
+            "post": {
+                "tags": [
+                    "Favorites"
+                ],
+                "summary": "Add a word to favorites",
+                "description": "Save the specified word to the user's list of favorites",
+                "operationId": "addFavorite",
+                "parameters": [
+                    {
+                        "name": "word",
+                        "in": "path",
+                        "description": "The word to add to favorites",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Word added to favorites",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Word favorited successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Word not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Word not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Word already in favorites",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Word is already in favorites"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Server Error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/entries/en/{word}/unfavorite": {
+            "delete": {
+                "tags": [
+                    "Favorites"
+                ],
+                "summary": "Remove a word from favorites",
+                "description": "Remove the specified word from the user's list of favorites",
+                "operationId": "removeFavorite",
+                "parameters": [
+                    {
+                        "name": "word",
+                        "in": "path",
+                        "description": "The word to remove from favorites",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Word removed from favorites",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Word removed from favorites successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Word not found in favorites",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Word not found in favorites"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Server Error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/user/me/favorites": {
+            "get": {
+                "tags": [
+                    "Favorites"
+                ],
+                "summary": "List favorite words",
+                "description": "Retrieve the list of words favorited by the authenticated user",
+                "operationId": "listFavorites",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No favorites found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No favorites found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Server Error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/user/me/history": {
+            "get": {
+                "tags": [
+                    "History"
+                ],
+                "summary": "Retorna a lista de palavras visitadas pelo usuário com paginação por cursores",
+                "operationId": "b096949a1b6f565f837e392cd6da0d94",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Número de palavras a retornar por página",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Cursor para a páginação",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de palavras com informações de acesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "word": {
+                                                        "type": "string",
+                                                        "example": "fire"
+                                                    },
+                                                    "added": {
+                                                        "type": "string",
+                                                        "example": "2022-05-05T19:28:13.531Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "totalDocs": {
+                                            "type": "integer",
+                                            "example": 20
+                                        },
+                                        "next": {
+                                            "type": "string",
+                                            "example": "http://api.example.com/user/me/history?cursor=eyJpdiI6Im..."
+                                        },
+                                        "previous": {
+                                            "type": "string",
+                                            "example": "http://api.example.com/user/me/history?cursor=eyJpdiI6Im..."
+                                        },
+                                        "hasNext": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "hasPrev": {
+                                            "type": "boolean",
+                                            "example": false
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Usuário não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/user/me": {
             "get": {
                 "tags": [
@@ -400,6 +718,14 @@
         {
             "name": "Words",
             "description": "Operations related to word search"
+        },
+        {
+            "name": "Favorites",
+            "description": "Favorites"
+        },
+        {
+            "name": "History",
+            "description": "History"
         }
     ]
 }
